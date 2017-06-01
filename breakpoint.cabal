@@ -1,0 +1,21 @@
+name:                breakpoint
+version:             0.1.0.0
+synopsis:            Set breakpoints for imperative debuggers (e.g. gdb)
+-- description:         
+homepage:            https://github.com/bgamari/breakpoint
+license:             BSD3
+license-file:        LICENSE
+author:              Ben Gamari
+maintainer:          ben@smart-cactus.org
+copyright:           (c) 2017 Ben Gamari
+category:            Development
+build-type:          Simple
+extra-source-files:  ChangeLog.md
+cabal-version:       >=1.10
+
+library
+  exposed-modules:     System.Breakpoint
+  c-sources:           cbits/breakpoint.c
+  other-extensions:    ForeignFunctionInterface
+  build-depends:       base >=4.10 && <4.11
+  default-language:    Haskell2010
