@@ -11,16 +11,17 @@ module System.Breakpoint
     ) where
 
 import System.IO.Unsafe
+import Foreign.C.String
 import GHC.IO
 import GHC.Word
 import GHC.Int
 import GHC.Prim
 
-foreign import ccall unsafe "c_breakpoint" breakpoint :: IO ()
+foreign import ccall unsafe "c_breakpoint" breakpoint :: CString -> IO ()
 
-breakOnEval :: a -> a
-breakOnEval x = unsafePerformIO $ do
-    breakpoint
+breakOnEval :: String -> a -> a
+breakOnEval lbl x = unsafePerformIO . withCString lbl $ \clbl -> do
+    breakpoint clbl
     return x
 
 logPointer :: a -> IO ()
