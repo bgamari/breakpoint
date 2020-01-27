@@ -6,6 +6,8 @@ module System.Breakpoint
     ( breakOnEval
     , breakpoint
     , breakpoint'
+      -- * A simple logging framework
+    , logString
     , logWord
     , logPointer
     , logThreadId
