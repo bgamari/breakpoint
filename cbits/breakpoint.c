@@ -7,7 +7,7 @@ volatile uint64_t word_log[LOG_SIZE];
 volatile int log_idx = 0;
 volatile int lock = 0;
 
-volatile char* last_label = NULL;
+volatile const char* last_label = NULL;
 
 void c_log_word(uint64_t x) {
   while (__sync_lock_test_and_set(&lock, 1))
@@ -17,13 +17,13 @@ void c_log_word(uint64_t x) {
   lock = 0;
 }
 
-void labelled(char* s) {
+void labelled(const char* s) {
   // silly non-noop thing to hopefully prevent 'labelled'
   // from being optimized away
   last_label = s;
 }
 
-void c_breakpoint(char* label) {
+void c_breakpoint(const char* label) {
   __asm__("int $3");
   labelled(label);
 }
