@@ -13,7 +13,7 @@ enum entry_type {
 struct log_entry {
   enum entry_type ty;
   union {
-    uint64_t word;
+    uintptr_t word;
     const char *string;
   };
 };
@@ -35,7 +35,7 @@ void print_log() {
         printf("  string: %s\n", entry->string);
         break;
       case ENTRY_WORD:
-        printf("  word: %s\n", entry->word);
+        printf("  word: %lu\n", entry->word);
         break;
     }
   }
@@ -58,7 +58,7 @@ void c_log_string(const char *x) {
   log_it(entry);
 }
 
-void c_log_word(uint64_t x) {
+void c_log_word(uintptr_t x) {
   struct log_entry entry = {
     .ty = ENTRY_WORD,
     .word = x,
