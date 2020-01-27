@@ -1,20 +1,69 @@
+#include <stdio.h>
 #include <stdint.h>
 #include <pthread.h>
 
 #define LOG_SIZE 4096
 
-volatile uint64_t word_log[LOG_SIZE];
+enum entry_type {
+  ENTRY_NONE,
+  ENTRY_WORD,
+  ENTRY_STRING
+};
+
+struct log_entry {
+  enum entry_type ty;
+  union {
+    uint64_t word;
+    const char *string;
+  };
+};
+
+volatile struct log_entry the_log[LOG_SIZE] = {};
 volatile int log_idx = 0;
 volatile int lock = 0;
 
 volatile const char* last_label = NULL;
 
-void c_log_word(uint64_t x) {
+void print_log() {
+  printf("The log:\n");
+  for (int i=0; i<LOG_SIZE; i++) {
+    volatile struct log_entry *entry = &the_log[(log_idx + i) % LOG_SIZE];
+    switch (entry->ty) {
+      case ENTRY_NONE:
+        break;
+      case ENTRY_STRING:
+        printf("  string: %s\n", entry->string);
+        break;
+      case ENTRY_WORD:
+        printf("  word: %s\n", entry->word);
+        break;
+    }
+  }
+  printf("the end.\n");
+}
+
+static void log_it(struct log_entry entry) {
   while (__sync_lock_test_and_set(&lock, 1))
-      while (lock);
-  word_log[log_idx] = x;
+    while (lock);
+  the_log[log_idx] = entry;
   log_idx = (log_idx + 1) % LOG_SIZE;
   lock = 0;
+}
+
+void c_log_string(const char *x) {
+  struct log_entry entry = {
+    .ty = ENTRY_STRING,
+    .string = x,
+  };
+  log_it(entry);
+}
+
+void c_log_word(uint64_t x) {
+  struct log_entry entry = {
+    .ty = ENTRY_WORD,
+    .word = x,
+  };
+  log_it(entry);
 }
 
 void labelled(const char* s) {

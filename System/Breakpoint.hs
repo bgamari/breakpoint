@@ -28,6 +28,9 @@ breakOnEval lbl x = unsafePerformIO $ do
     breakpoint lbl
     return $!x
 
+logString :: String -> IO ()
+logString s = withCString s logString'
+
 logPointer :: a -> IO ()
 logPointer x = do
     a <- IO $ \s -> case anyToAddr# x s of (# s', addr #) -> (# s', fromIntegral (I# (addr2Int# addr)) #)
@@ -35,3 +38,4 @@ logPointer x = do
 
 foreign import ccall unsafe "c_log_tid" logThreadId :: IO ()
 foreign import ccall unsafe "c_log_word" logWord :: Word -> IO ()
+foreign import ccall unsafe "c_log_string" logString' :: CString -> IO ()
