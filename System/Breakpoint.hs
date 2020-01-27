@@ -5,6 +5,7 @@
 module System.Breakpoint
     ( breakOnEval
     , breakpoint
+    , breakpoint'
     , logWord
     , logPointer
     , logThreadId
@@ -17,12 +18,15 @@ import GHC.Word
 import GHC.Int
 import GHC.Prim
 
-foreign import ccall unsafe "c_breakpoint" breakpoint :: CString -> IO ()
+foreign import ccall unsafe "c_breakpoint" breakpoint' :: CString -> IO ()
+
+breakpoint :: String -> IO ()
+breakpoint lbl = withCString lbl breakpoint'
 
 breakOnEval :: String -> a -> a
-breakOnEval lbl x = unsafePerformIO . withCString lbl $ \clbl -> do
-    breakpoint clbl
-    return x
+breakOnEval lbl x = unsafePerformIO $ do
+    breakpoint lbl
+    return $!x
 
 logPointer :: a -> IO ()
 logPointer x = do
